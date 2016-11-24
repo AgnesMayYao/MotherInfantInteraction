@@ -1,0 +1,193 @@
+import csv
+import matplotlib.pyplot as plt
+
+
+
+
+
+if __name__ == '__main__':
+    
+    small_font_size=30
+    large_font_size=35
+    elan_line_width=5.0
+    
+    results=[]
+    result_file_name="timestamp_Nov11.csv"
+    
+    fig = plt.figure(figsize=(20, 10))
+    acc = fig.add_subplot(313)
+    #(acc,pre) = plt.subplots(2, sharex=True,sharey=False)
+
+    #acc files, should be 2 files
+    #no_acc = int(raw_input("the number of accelerometer files: "))  
+    acc_filename=["Mom_2016-11-11T13.57.58.368_D4D7C843B379_Accelerometer.csv", \
+    "Baby_2016-11-11T13.57.58.368_FB7D0BFC0351_Accelerometer.csv"]
+    
+    start_time=0
+    
+    for i in range(0,2):
+        #acc_filename=raw_input("accelerometer file name: ")
+        #plot
+        acc_file=open(acc_filename[i],"r")
+        acc_reader = csv.reader(acc_file)
+        
+        row_no=1
+        
+        data_time=[]
+        data_acc=[]
+        for row in acc_reader:
+            if row_no>1:
+                if start_time==0:
+                    start_time=int(row[0])-10000
+
+                data_time.append((int(row[0])-start_time)*1.0/1000)
+                data_acc.append((float(row[3])+float(row[4])+float(row[5]))/3)
+            row_no+=1
+        
+        
+        if i==0:
+            line=acc.plot(data_time,data_acc,'purple')
+            acc.text(data_time[len(data_time)-1], data_acc[len(data_acc)-1], "mother", fontsize=small_font_size, color='purple')
+        else:
+            line=acc.plot(data_time,data_acc,'green')
+            acc.text(data_time[len(data_time)-1], data_acc[len(data_acc)-1]-1, "baby", fontsize=small_font_size, color='green')
+        
+    
+    acc.set_xlabel('time (s)',fontsize=small_font_size)
+    acc.set_ylabel('Motion data\n(average of 3D axes)',fontsize=small_font_size)    
+            
+            
+    #pre=acc.twinx() 
+    pre = fig.add_subplot(312,sharex=acc)
+    #pressure files     
+    #no_pre = int(raw_input("the number of pressure files: "))  
+    pre_filename=["Mom_2016-11-11T13.57.58.368_D4D7C843B379_Pressure.csv", \
+    "Baby_2016-11-11T13.57.58.368_FB7D0BFC0351_Pressure.csv"]
+    
+    for i in range(0,2):
+        #pre_filename=raw_input("pressure file name: ")
+        #plot
+        pre_file=open(pre_filename[i],"r")
+        pre_reader = csv.reader(pre_file)
+        
+        row_no=1
+        
+        data_time=[]
+        data_pre=[]
+        
+        for row in pre_reader:
+            if row_no>1:
+                data_time.append((int(row[0])-start_time)*1.0/1000)
+                data_pre.append(30*(1013 - float(row[3])/100))
+            row_no+=1
+        
+        
+        
+        if i==0:
+            line2=pre.plot(data_time,data_pre,'purple')
+            pre.text(data_time[len(data_time)-1], data_pre[len(data_pre)-1], "mother", fontsize=small_font_size, color='purple')
+        else:
+            line2=pre.plot(data_time,data_pre,'g')
+            pre.text(data_time[len(data_time)-1], data_pre[len(data_pre)-1], "baby", fontsize=small_font_size, color='green')
+            
+    pre.set_ylabel('Altitude\n feet',fontsize=small_font_size)
+      
+    
+    
+    
+    
+    
+    
+    elan = fig.add_subplot(311,sharex=acc)
+    #elan file     
+    elan_filename="three states _ p1 nov 11 home visit pickup-putdown.txt"
+    
+    #elan_filename=raw_input("elan file name: ")
+    #plot
+    elan_file=open(elan_filename,"r")
+    
+    row_no=1
+    ##starting_unix=1478890462020
+    #offset=1478890462020
+    offset=1478890442020
+    counter=0
+    elan.set_ylim([-1,4])
+    labels = [item for item in elan.get_yticklabels()]
+    #labels[1]='nearby'
+    #labels[2]='putting down'
+    #labels[3]='holding still'
+    #labels[4]='holding walking'
+    #labels[5]='picking up'
+    #labels[6]='hovering'
+    #label=['nearby','putting down','holding still','holding walking','picking up','hovering']
+    label=[]
+
+    for line in elan_file:
+        temp=line.split("\t")
+
+        start_point=(float(temp[3])*1000+offset-start_time)*1.0/1000
+        end_point=(float(temp[5])*1000+offset-start_time)*1.0/1000
+        
+        if temp[8]!=None and len(temp[8])!=1:
+            results.append([float(temp[3])*1000+offset,float(temp[5])*1000+offset,temp[8]]);
+            temp[8]=temp[8].rstrip()
+            label_index = label.index(temp[8]) if temp[8] in label else -1
+            if data_time[len(data_time)-1]>=end_point:      
+                if label_index==-1:
+                    label.append(temp[8])
+                    elan.plot([start_point,end_point],[counter,counter],linewidth=elan_line_width,color='black')
+                    labels[counter+1]=temp[8]
+                    counter+=1
+                else:
+                    elan.plot([start_point,end_point],[label_index,label_index],linewidth=elan_line_width,color='black')
+
+            elif data_time[len(data_time)-1]>start_point:
+                if label_index==-1:
+                    label.append(temp[8])
+                    elan.plot([start_point,data_time[len(data_time)-1]],[counter,counter],linewidth=elan_line_width,color='black')
+                    labels[counter+1]=temp[8]
+                    counter+=1
+                else:
+                    elan.plot([start_point,data_time[len(data_time)-1]],[label_index,label_index],linewidth=elan_line_width,color='black')
+
+
+        row_no+=1
+
+    elan.set_ylim([-1,4])
+    elan.set_yticklabels(labels)
+ 
+    acc.set_xlim([0,210])
+   
+    pre.yaxis.tick_right()
+    pre.yaxis.set_label_position("right")
+    fig.subplots_adjust(hspace=0)
+    #acc.legend(loc='upper right')
+    #pre.legend(loc="upper right")
+    plt.title('Nov 11',fontsize=large_font_size)
+    plt.setp(pre.get_xticklabels(), visible=False)
+    plt.setp(elan.get_xticklabels(), visible=False)
+    plt.setp(acc.get_xticklabels(),fontsize=small_font_size)
+    plt.setp(acc.get_yticklabels(),fontsize=small_font_size)
+    plt.setp(pre.get_yticklabels(),fontsize=small_font_size)
+    plt.setp(elan.get_xticklabels(),fontsize=small_font_size)
+    plt.setp(elan.get_yticklabels(),fontsize=small_font_size)
+    #acc.grid()
+    #pre.grid()
+    #elan.grid()
+    plt.show()
+        
+    pre_file.close()    
+    acc_file.close()
+    elan_file.close()  
+    
+    
+    result_file = open(result_file_name,'wb')
+    wr = csv.writer(result_file, dialect='excel')
+    wr.writerows(results)
+    result_file.close()
+    
+    
+    #Mom_2016-10-28T16.16.08.276_D4D7C843B379_Accelerometer.csv
+    #Baby_2016-10-28T16.16.08.276_FB7D0BFC0351_Accelerometer.csv
+    #Mom_2016-10-28T16.16.08.276_D4D7C843B379_Pressure.csv
+    #Baby_2016-10-28T16.16.08.276_FB7D0BFC0351_Pressure.csv
