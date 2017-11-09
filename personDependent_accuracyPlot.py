@@ -1,0 +1,70 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+#persondependent
+word_size=22
+
+fig = plt.figure(figsize=(11, 5))
+la=fig.add_subplot(111)
+
+'''
+first = [0.81022727272727268, 0.85321969696969691, 0.9327651515151516, 0.96344696969696975]
+second = [0.64469696969696966, 0.72386363636363638, 0.8100378787878787, 0.89564393939393949]
+
+state=[6,5,3,2]
+
+la.plot(state,first,label="P1.1")
+la.plot(state,second,label="P1.2")
+'''
+Jan17 = [0.51373889268626116, 0.53212576896787422, 0.60030758714969246, 0.63202323991797682, 0.75003417634996583]
+Jan27 = [0.31896174863387977, 0.33234972677595626, 0.37830601092896171, 0.72409836065573774, 0.76349726775956284]
+Feb13 = [0.37320761762509336, 0.41954817027632563, 0.40216579536967884, 0.51639283047050033, 0.60162434652725916]
+Feb18 = [0.46301587301587305, 0.50944047619047628, 0.55941269841269847, 0.69306746031746036, 0.73496825396825405]
+Mar31 = [0.4570496083550914, 0.55657093124456058, 0.57635443864229763, 0.60979248259355967, 0.79192096388163624]
+May1 = [0.68781340525422041, 0.68075117370892024, 0.70620317650584352, 0.71184696833483163, 0.77561682149635403]
+May7 = [0.46458163736771468, 0.5394226749686476, 0.54407823810257194, 0.56789949616070046, 0.76868495742667942]
+May11 = [0.33979626256493289, 0.51921001146866363, 0.55291101666329356, 0.63656479794913312, 0.71954732510288066]
+May22 = [0.51688152741514359, 0.68369642080069626, 0.70140747389033953, 0.72276028067885112, 0.78269963011314181]
+May26 = [0.62450980392156874, 0.65490196078431373, 0.67352941176470593, 0.67549019607843142, 0.86960784313725481]
+
+
+
+state=[8, 7, 5, 3, 2]
+
+la.plot(state,Jan17,label="P2")
+la.plot(state,Jan27,label="P3")
+la.plot(state,Feb13,label="P5")
+la.plot(state,Feb18,label="P7")
+la.plot(state,Mar31,label="P9")
+la.plot(state,May1,label="P10")
+la.plot(state,May7,label="P11")
+la.plot(state,May11,label="P15")
+la.plot(state,May22,label="P18")
+la.plot(state,May26,label="P19")
+
+together = np.array([Jan17, Jan27, Feb13, Feb18, Mar31, May1, May7, May11, May22, May26])
+print np.mean(together, axis = 0)
+print np.std(together, axis = 0)
+
+
+
+
+plt.ylim(ymin=0,ymax=1)
+plt.xlabel("num of states",fontsize=word_size)
+plt.ylabel("Accuracy",fontsize=word_size)
+plt.title("3-min Sessions",fontsize=word_size)
+
+la.xaxis.set_major_locator(plt.FixedLocator(state))
+
+for tick in la.xaxis.get_major_ticks():
+	tick.label.set_fontsize(word_size) 
+
+for tick in la.yaxis.get_major_ticks():
+	tick.label.set_fontsize(word_size) 
+
+
+la.legend(loc='lower right', ncol=5,fontsize=word_size)
+
+
+plt.show()
